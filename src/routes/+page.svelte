@@ -3,14 +3,37 @@
 	import * as Comlink from 'comlink';
 	import type { MyClass } from '../lib/worker';
 	import MyWorker from '../lib/worker?worker';
+	import { setupThreeJsScene } from '../lib/three';
+
+	let canvas: HTMLCanvasElement;
 
 	onMount(async () => {
+		// test loading web worker with Comlink (nice and easy)
 		const Cls = Comlink.wrap(new MyWorker()) as Comlink.Remote<typeof MyClass>;
 
 		const instance = await new Cls();
 		instance.logSomething();
+
+		// test setting up threejs
+		setupThreeJsScene({
+			canvas,
+			cameraType: 'orthographic',
+			cameraOptions: {
+				fov: 70,
+				near: 1,
+				far: 1000,
+				orthoSize: 20
+			}
+		});
 	});
 </script>
 
-<h1>Welcome to SvelteKit</h1>
-<p>Visit <a href="https://kit.svelte.dev">kit.svelte.dev</a> to read the documentation</p>
+<canvas bind:this={canvas} />
+
+<style>
+	canvas {
+		width: 80%;
+		height: 80%;
+		border: 1px solid red;
+	}
+</style>

@@ -1,5 +1,3 @@
-// AudioClip.ts
-
 export class AudioClip {
 	public id: string;
 	public audioBuffer: AudioBuffer;

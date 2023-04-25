@@ -1,4 +1,4 @@
-import type { AudioClip } from './AudioClip';
+import type { AudioClip } from './audioClip';
 
 export class AudioTrack {
 	public id: string;

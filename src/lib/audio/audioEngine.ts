@@ -1,4 +1,4 @@
-import type { AudioTrack } from './AudioTrack';
+import type { AudioTrack } from './audioTrack';
 
 export class AudioEngine {
 	public tracks: AudioTrack[] = [];

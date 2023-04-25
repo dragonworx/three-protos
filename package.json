@@ -34,6 +34,7 @@
 	"dependencies": {
 		"cannon-es": "^0.20.0",
 		"comlink": "^4.4.1",
+		"eventemitter3": "^5.0.0",
 		"planck": "1.0.0-alpha.4",
 		"three": "^0.151.3"
 	}

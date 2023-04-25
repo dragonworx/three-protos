@@ -17,7 +17,8 @@
 		// test setting up threejs
 		setupThreeJsScene({
 			canvas,
-			cameraType: 'orthographic',
+			// cameraType: 'orthographic',
+			cameraType: 'perspective',
 			cameraOptions: {
 				fov: 70,
 				near: 1,

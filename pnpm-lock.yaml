@@ -1,6 +1,7 @@
 lockfileVersion: 5.4
 
 specifiers:
+  '@babylonjs/core': ^6.1.0
   '@sveltejs/adapter-auto': ^2.0.0
   '@sveltejs/kit': ^1.5.0
   '@types/audioworklet': ^0.0.42
@@ -25,6 +26,7 @@ specifiers:
   vitest: ^0.25.3
 
 dependencies:
+  '@babylonjs/core': 6.1.0
   cannon-es: 0.20.0
   comlink: 4.4.1
   eventemitter3: 5.0.0
@@ -51,6 +53,10 @@ devDependencies:
   vitest: 0.25.8
 
 packages:
+
+  /@babylonjs/core/6.1.0:
+    resolution: {integrity: sha512-/RfJU9B0bidGpZrxRWoHx+bHxeX07ICXTcVHwe7fFRk/uaBw3ZW8PzYqW30bN4s6oT+oxXzsj/jFAxE/zO+S9Q==}
+    dev: false
 
   /@esbuild/android-arm/0.17.18:
     resolution: {integrity: sha512-EmwL+vUBZJ7mhFCs5lA4ZimpUH3WMAoqvOIYhVQwdIgSpHC8ImHdsRyhHAVxpDYUSm0lWvd63z0XH1IlImS2Qw==}

@@ -1,16 +1,16 @@
-const resolution = 1024;
-const clipHeight = 50;
+export const waveformResolution = 1024 * 8;
+export const waveformHeight = 50;
 
 export class AudioWaveform {
 	public canvas: HTMLCanvasElement;
 
 	constructor(public audioBuffer: AudioBuffer, canvas?: HTMLCanvasElement) {
-		const w = audioBuffer.length / resolution;
+		const w = audioBuffer.length / waveformResolution;
 		canvas = this.canvas = canvas ?? document.createElement('canvas');
 		canvas.width = w;
-		canvas.height = clipHeight;
+		canvas.height = waveformHeight;
 		canvas.style.width = `${w}px`;
-		canvas.style.height = `${clipHeight}px`;
+		canvas.style.height = `${waveformHeight}px`;
 		this.draw();
 	}
 
@@ -59,4 +59,20 @@ export class AudioWaveform {
 
 		ctx.stroke();
 	}
+}
+
+export function pixelToTimeOffset(
+	pixelCoordinate: number,
+	resolution: number,
+	sampleRate: number
+) {
+	const pixelDuration = resolution / sampleRate;
+	const timeOffset = pixelCoordinate * pixelDuration;
+	return timeOffset;
+}
+
+export function timeOffsetToPixel(timeOffset: number, resolution: number, sampleRate: number): number {
+    const pixelDuration = resolution / sampleRate;
+    const pixelCoordinate = timeOffset / pixelDuration;
+    return pixelCoordinate;
 }

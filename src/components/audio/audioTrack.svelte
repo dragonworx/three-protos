@@ -17,7 +17,7 @@
 </script>
 
 <div>
-	{#each track.clips as clip}
+	{#each clips as clip}
 		<AudioClipView {clip} />
 	{/each}
 </div>
@@ -27,9 +27,5 @@
 		border: 1px solid red;
 		height: 50px;
 		position: relative;
-	}
-
-	.controls {
-		flex-grow: 0;
 	}
 </style>

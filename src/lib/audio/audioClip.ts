@@ -1,3 +1,4 @@
+import type { AudioPlayer } from './audioPlayer';
 import { AudioWaveform } from './waveform';
 
 export class AudioClip {
@@ -10,31 +11,44 @@ export class AudioClip {
     out: number;
     waveform?: AudioWaveform;
 
-    constructor(context: AudioContext, buffer: AudioBuffer, volume = 1, startTime = 0, inOffset = 0, outOffset = 0) {
+    constructor(public readonly audioPlayer: AudioPlayer, buffer: AudioBuffer, volume = 1, startTime = 0, inOffset = 0, outOffset = 0) {
         this.buffer = buffer;
-        this.sourceNode = context.createBufferSource();
-        this.sourceNode.buffer = this.buffer;
-        this.audioNode = context.createGain();
-        this.sourceNode.connect(this.audioNode);
+        const {audioNode,sourceNode} = this.createNodes();
+        this.sourceNode = sourceNode;
+        this.audioNode = audioNode;
         this.volume = volume;
         this.startTime = startTime;
         this.in = inOffset;
         this.out = outOffset;
     }
 
+    createNodes() {
+        const { context } = this.audioPlayer;
+        this.sourceNode = context.createBufferSource();
+        this.sourceNode.buffer = this.buffer;
+        this.audioNode = context.createGain();
+        this.sourceNode.connect(this.audioNode);
+        return {
+            sourceNode: this.sourceNode,
+            audioNode: this.audioNode,
+        }
+    }
+
+    recreateNodes() {
+        this.createNodes();
+    }
+
     play(offsetSeconds = 0): void {
         const effectiveIn = this.in + offsetSeconds;
         const effectiveDuration = this.buffer.duration - effectiveIn - this.out;
-        this.sourceNode.start(0, effectiveIn, effectiveDuration);
+        this.sourceNode.start(this.startTime, effectiveIn, effectiveDuration);
     }
     
 
     stop(): void {
         this.sourceNode.stop();
         // Reinitialize the sourceNode for subsequent plays
-        this.sourceNode = this.audioNode.context.createBufferSource();
-        this.sourceNode.buffer = this.buffer;
-        this.sourceNode.connect(this.audioNode);
+        // this.createNodes();
     }
 
     connect(node: AudioNode): void {

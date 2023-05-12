@@ -1,5 +1,6 @@
 import Events from '../events';
 import type { AudioClip } from './audioClip';
+import type { AudioPlayer } from './audioPlayer';
 
 export class AudioTrack {
     audioNode: GainNode;
@@ -7,17 +8,34 @@ export class AudioTrack {
     volume: number;
     pan: number;
 
-    constructor(context: AudioContext, volume = 1, pan = 0) {
-        this.audioNode = context.createGain();
+    constructor(public readonly audioPlayer: AudioPlayer, volume = 1, pan = 0) {
+     
         this.clips = [];
         this.volume = volume;
         this.pan = pan;
+        this.audioNode = this.createNodes().audioNode;
+    }
+
+    createNodes() {
+        this.audioNode = this.audioPlayer.context.createGain();
+        return {
+            audioNode: this.audioNode,
+        }
+    }
+
+    recreateNodes() {
+        this.createNodes();
+        this.clips.forEach(clip => {
+            clip.recreateNodes();
+            clip.connect(this.audioNode);
+        });
     }
 
     addClip(clip: AudioClip): void {
         clip.connect(this.audioNode);
         this.clips.push(clip);
         this.sortClips();
+
         Events.audio.track.clipAdded.emit(clip);
     }
 
@@ -45,7 +63,9 @@ export class AudioTrack {
         });
     }
     
-    
+    stop() {
+        this.clips.forEach(clip => clip.stop());
+    }
 
     connect(node: AudioNode): void {
         this.audioNode.connect(node);

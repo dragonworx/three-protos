@@ -6,7 +6,8 @@ export default {
         load: {
             start: Emit(),
             end: Emit(),
-        }
+        },
+        render: Emit(),
     },
     track: {
         clipAdded: Emit<AudioClip>(),

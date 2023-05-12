@@ -1,7 +1,8 @@
 <script lang="ts">
 	import { onMount } from 'svelte';
 	import type { AudioClip } from '../../lib/audio/audioClip';
-	import { mouseDrag, type MouseDragInitialiser, type MouseDragUpdate } from '../../lib/mouseDrag';
+	import { mouseDrag, type MouseDragUpdate } from '../../lib/mouseDrag';
+	import { pixelToTimeOffset, waveformResolution } from '../../lib/audio/waveform';
 
 	export let clip: AudioClip;
 
@@ -26,6 +27,18 @@
 			startY: top ? parseFloat(top) : 0,
 			onMouseMove(update: MouseDragUpdate) {
 				canvas.style.left = update.currentX + 'px';
+			}
+		}).then((update) => {
+			const x = update.currentX;
+			const offset = pixelToTimeOffset(x, waveformResolution, clip.audioPlayer.context.sampleRate);
+
+			if (offset < 0) {
+				clip.in = offset * -1;
+			} else if (offset > 0) {
+				clip.startTime = offset;
+			} else {
+				clip.in = 0;
+				clip.startTime = 0;
 			}
 		});
 	};

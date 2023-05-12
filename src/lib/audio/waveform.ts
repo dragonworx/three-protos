@@ -2,8 +2,11 @@ const resolution = 1024;
 const clipHeight = 50;
 
 export class AudioWaveform {
-	constructor(public canvas: HTMLCanvasElement, public audioBuffer: AudioBuffer) {
+	public canvas: HTMLCanvasElement;
+
+	constructor(public audioBuffer: AudioBuffer, canvas?: HTMLCanvasElement) {
 		const w = audioBuffer.length / resolution;
+		canvas = this.canvas = canvas ?? document.createElement('canvas');
 		canvas.width = w;
 		canvas.height = clipHeight;
 		canvas.style.width = `${w}px`;

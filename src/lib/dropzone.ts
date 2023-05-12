@@ -8,8 +8,13 @@ export class DropZone extends EventEmitter<
 	private counter = 0;
 
 	public static isDragOver = false;
+	public static hasInit = false;
 
 	public static init() {
+		if (this.hasInit) {
+			return;
+		}
+
 		function preventDefaults(e: Event) {
 			e.preventDefault();
 			e.stopPropagation();
@@ -18,10 +23,14 @@ export class DropZone extends EventEmitter<
 		['dragenter', 'dragover', 'dragleave', 'drop', 'dragend'].forEach((eventName) => {
 			document.body.addEventListener(eventName, preventDefaults, false);
 		});
+
+		this.hasInit = true;
 	}
 
 	constructor(container?: HTMLElement) {
 		super();
+
+		DropZone.init();
 
 		this.isEnabled = true;
 		this.isDragOver = false;

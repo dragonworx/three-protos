@@ -1,48 +1,57 @@
+import Events from '../events';
 import type { AudioClip } from './audioClip';
 
 export class AudioTrack {
-	public id: string;
-	public volume: number;
-	public pan: number;
-	public clips: AudioClip[] = [];
+    audioNode: GainNode;
+    clips: AudioClip[];
+    volume: number;
+    pan: number;
 
-	constructor(id: string, volume = 1, pan = 0) {
-		this.id = id;
-		this.volume = volume;
-		this.pan = pan;
-	}
+    constructor(context: AudioContext, volume = 1, pan = 0) {
+        this.audioNode = context.createGain();
+        this.clips = [];
+        this.volume = volume;
+        this.pan = pan;
+    }
 
-	public addClip(clip: AudioClip): void {
-		this.clips.push(clip);
-	}
+    addClip(clip: AudioClip): void {
+        clip.connect(this.audioNode);
+        this.clips.push(clip);
+        this.sortClips();
+        Events.audio.track.clipAdded.emit(clip);
+    }
 
-	public removeClip(clip: AudioClip): void {
-		const index = this.clips.indexOf(clip);
-		if (index !== -1) {
-			this.clips.splice(index, 1);
-		}
-	}
+    removeClip(clip: AudioClip): void {
+        const index = this.clips.indexOf(clip);
+        if (index > -1) {
+            clip.disconnect(this.audioNode);
+            this.clips.splice(index, 1);
+        }
+    }
 
-	public getClipById(id: string): AudioClip | null {
-		const clip = this.clips.find((c) => c.id === id);
-		return clip ? clip : null;
-	}
+    sortClips(): void {
+        this.clips.sort((a, b) => a.startTime - b.startTime);
+    }
 
-	public setVolume(volume: number): void {
-		this.volume = volume;
-		// Update volume on associated AudioWorkletNode when implemented
-	}
+    play(offsetSeconds = 0): void {
+        this.clips.forEach(clip => {
+            const clipDuration = clip.buffer.duration - clip.in - clip.out;
+            if (clip.startTime <= offsetSeconds && offsetSeconds <= clip.startTime + clipDuration) {
+                const clipOffset = offsetSeconds - clip.startTime;
+                clip.play(clipOffset);
+            } else if (clip.startTime >= offsetSeconds) {
+                clip.play();
+            }
+        });
+    }
+    
+    
 
-	public setPan(pan: number): void {
-		this.pan = pan;
-		// Update pan on associated AudioWorkletNode when implemented
-	}
+    connect(node: AudioNode): void {
+        this.audioNode.connect(node);
+    }
 
-	public setCurrentTime(time: number): void {
-		for (const clip of this.clips) {
-			clip.setCurrentTime(time);
-		}
-
-		// Update playback time for associated AudioWorkletNode when implemented
-	}
+    disconnect(node: AudioNode): void {
+        this.audioNode.disconnect(node);
+    }
 }

@@ -1,51 +1,55 @@
+import { AudioWaveform } from './waveform';
+
 export class AudioClip {
-	public id: string;
-	public audioBuffer: AudioBuffer;
-	public startTime: number;
-	public endTime: number;
-	public volume: number;
-	public pan: number;
+    buffer: AudioBuffer;
+    sourceNode: AudioBufferSourceNode;
+    audioNode: GainNode;
+    volume: number;
+    startTime: number;
+    in: number;
+    out: number;
+    waveform?: AudioWaveform;
 
-	constructor(
-		id: string,
-		audioBuffer: AudioBuffer,
-		startTime = 0,
-		endTime: number = audioBuffer.duration,
-		volume = 1,
-		pan = 0
-	) {
-		this.id = id;
-		this.audioBuffer = audioBuffer;
-		this.startTime = startTime;
-		this.endTime = endTime;
-		this.volume = volume;
-		this.pan = pan;
-	}
+    constructor(context: AudioContext, buffer: AudioBuffer, volume = 1, startTime = 0, inOffset = 0, outOffset = 0) {
+        this.buffer = buffer;
+        this.sourceNode = context.createBufferSource();
+        this.sourceNode.buffer = this.buffer;
+        this.audioNode = context.createGain();
+        this.sourceNode.connect(this.audioNode);
+        this.volume = volume;
+        this.startTime = startTime;
+        this.in = inOffset;
+        this.out = outOffset;
+    }
 
-	public setStartTime(startTime: number): void {
-		this.startTime = startTime;
-		// Update startTime on associated AudioWorkletNode when implemented
-	}
+    play(offsetSeconds = 0): void {
+        const effectiveIn = this.in + offsetSeconds;
+        const effectiveDuration = this.buffer.duration - effectiveIn - this.out;
+        this.sourceNode.start(0, effectiveIn, effectiveDuration);
+    }
+    
 
-	public setEndTime(endTime: number): void {
-		this.endTime = endTime;
-		// Update endTime on associated AudioWorkletNode when implemented
-	}
+    stop(): void {
+        this.sourceNode.stop();
+        // Reinitialize the sourceNode for subsequent plays
+        this.sourceNode = this.audioNode.context.createBufferSource();
+        this.sourceNode.buffer = this.buffer;
+        this.sourceNode.connect(this.audioNode);
+    }
 
-	public setVolume(volume: number): void {
-		this.volume = volume;
-		// Update volume on associated AudioWorkletNode when implemented
-	}
+    connect(node: AudioNode): void {
+        this.audioNode.connect(node);
+    }
 
-	public setPan(pan: number): void {
-		this.pan = pan;
-		// Update pan on associated AudioWorkletNode when implemented
-	}
+    disconnect(node: AudioNode): void {
+        this.audioNode.disconnect(node);
+    }
 
-	public setCurrentTime(time: number): void {
-		// Implement logic to update the playback position of the clip
-		// based on the given time value, if the clip should be playing
-		// at that time
-		// Update playback time for associated AudioWorkletNode when implemented
-	}
+    createWaveform(canvas: HTMLCanvasElement) {
+        if (!this.waveform) {
+            this.waveform = new AudioWaveform(this.buffer, canvas);
+        }
+
+        return this.waveform
+    }
 }
